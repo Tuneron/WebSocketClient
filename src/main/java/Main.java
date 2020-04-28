@@ -40,44 +40,35 @@ public class Main
 
     public static void main(String[] args) throws Exception
     {
+        Config config = new Config();
+        config.load();
+
         // Connect to the echo server.
-        WebSocket ws = connect();
+        WebSocket ws = connect(config.getAdress(), config.getTimeout());
 
         // The standard input via BufferedReader.
         BufferedReader in = getInput();
 
         // A text read from the standard input.
-        String text;
+        String text = "{\"deviceId\":" + config.getId() + ",\"value\":1}";
 
-        // Read lines until "exit" is entered.
-        while ((text = in.readLine()) != null)
+        while (0 == 0)
         {
-            // If the input string is "exit".
-            if (text.equals("exit"))
-            {
-                // Finish this application.
-                break;
-            }
+            Thread.sleep(config.getDelay());
 
             // Send the text to the server.
             ws.sendText(text);
         }
-
-        // Close the web socket.
-        ws.disconnect();
     }
 
 
     /**
      * Connect to the server.
      */
-    private static WebSocket connect() throws Exception
+    private static WebSocket connect(String adress, Integer timeout) throws Exception
     {
-        Config config = new Config();
-        config.load();
-
-        final String SERVER = config.getAdress();
-        final int TIMEOUT = config.getDelay();
+        final String SERVER = adress;
+        final int TIMEOUT = timeout;
 
         return new WebSocketFactory()
                 .setConnectionTimeout(TIMEOUT)

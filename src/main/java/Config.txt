@@ -1,2 +1,4 @@
 adress:http://localhost:8080/
-delay:5000
+id:1
+delay:60000
+timeout:5000
