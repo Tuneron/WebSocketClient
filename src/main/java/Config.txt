@@ -1,0 +1,2 @@
+adress:http://localhost:8080/
+delay:5000
