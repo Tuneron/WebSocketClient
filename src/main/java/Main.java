@@ -15,6 +15,8 @@
  * License.
  */
 import java.io.*;
+import java.time.LocalDateTime;
+
 import com.neovisionaries.ws.client.*;
 
 /**
@@ -43,8 +45,19 @@ public class Main
         Config config = new Config();
         config.load();
 
-        // Connect to the echo server.
-        WebSocket ws = connect(config.getAdress(), config.getTimeout());
+        WebSocket ws = null;
+
+        // Connect to the echo server
+        while (ws == null)
+        {
+            try {
+                ws = connect(config.getAdress(), config.getTimeout());
+            }
+            catch (WebSocketException ex) {
+                System.out.println(ex.getMessage() + LocalDateTime.now());
+                Thread.sleep(config.getTimeout());
+            }
+        }
 
         // The standard input via BufferedReader.
         BufferedReader in = getInput();
@@ -56,11 +69,20 @@ public class Main
         {
             Thread.sleep(config.getDelay());
 
-            // Send the text to the server.
-            ws.sendText(text);
+            if (!ws.isOpen()){
+                try {
+                    ws = connect(config.getAdress(), config.getTimeout());
+                }
+                catch (WebSocketException ex) {
+                    System.out.println(ex.getMessage() + LocalDateTime.now());
+                    Thread.sleep(config.getTimeout());
+                }
+            }
+            else
+                // Send the text to the server.
+                ws.sendText(text);
         }
     }
-
 
     /**
      * Connect to the server.
