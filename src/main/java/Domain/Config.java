@@ -1,4 +1,7 @@
+package Domain;
+
 import java.io.*;
+import java.nio.file.Path;
 import java.util.Scanner;
 
 public class Config {
@@ -55,10 +58,27 @@ public class Config {
         this.timeout = value;
     }
 
+    private static String init () throws IOException {
+        String CONFIG_FOLDER = "config/";
+        Path currentRelativePath = java.nio.file.Paths.get("");
+        String absolutePath = currentRelativePath.toAbsolutePath().normalize().toString()+"/";
+        String configPath = absolutePath + CONFIG_FOLDER;
+        try (InputStream input = new FileInputStream(configPath + "Config.txt")) {
+            return configPath + "Config.txt";
+        } catch (IOException ioe) {
+            System.out.println(ioe.getMessage());
+            throw new IOException("Fail to load a config!");
+        }
+    }
+
     public void load() throws IOException {
 
         try {
-            File myObj = new File(".\\src\\main\\java\\Config.txt");
+
+            System.out.println(init());
+
+            File myObj = new File(init());
+
             Scanner myReader = new Scanner(myObj);
 
             String adress = myReader.nextLine();

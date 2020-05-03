@@ -1,4 +1,4 @@
-/*
+package Domain;/*
  * Copyright (C) 2015 Neo Visionaries Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,6 +44,10 @@ public class Main
     {
         Config config = new Config();
         config.load();
+        Log log = new Log();
+        log.load();
+
+        boolean connectAvaliable = true;
 
         WebSocket ws = null;
 
@@ -54,10 +58,13 @@ public class Main
                 ws = connect(config.getAdress(), config.getTimeout());
             }
             catch (WebSocketException ex) {
+                log.exceptionLog(ex.getMessage());
                 System.out.println(ex.getMessage() + LocalDateTime.now());
                 Thread.sleep(config.getTimeout());
             }
         }
+
+        log.start();
 
         // The standard input via BufferedReader.
         BufferedReader in = getInput();
@@ -70,17 +77,34 @@ public class Main
             Thread.sleep(config.getDelay());
 
             if (!ws.isOpen()){
+
+                if(connectAvaliable) {
+                    log.disconnect();
+                    connectAvaliable = false;
+                }
+
                 try {
                     ws = connect(config.getAdress(), config.getTimeout());
                 }
                 catch (WebSocketException ex) {
+                    log.exceptionLog(ex.getMessage());
                     System.out.println(ex.getMessage() + LocalDateTime.now());
                     Thread.sleep(config.getTimeout());
                 }
             }
-            else
-                // Send the text to the server.
-                ws.sendText(text);
+            else{
+                if(!connectAvaliable) {
+                    // Log connection restore and send message
+                    log.connectionRestored();
+                    connectAvaliable = true;
+                    ws.sendText(text);
+                }
+                else
+                    // Send the text to the server.
+                    ws.sendText(text);
+            }
+
+
         }
     }
 
